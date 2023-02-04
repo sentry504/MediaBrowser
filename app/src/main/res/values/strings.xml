@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">MediaBrowser</string>
+    <string name="splashscreen_title">MediaBrowser</string>
+    
+    <string name="fab_button">Option\'s button</string>
+    <string name="fab_button_settings">Settings button</string>
+    <string name="fab_button_collections">Collections button</string>
+    <string name="fab_button_copy">Copy button</string>
+</resources>
