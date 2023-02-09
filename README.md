@@ -8,3 +8,10 @@ a otro sitio web o que lo saque de la aplicacion, por ejemplo, llevarlo a la Pla
 Por ende, algunas funciones de ciertas paginas que le pidan verificacion de usuario por redireccionamiento (loging con: google, facebook, disquss...) tambien se veran bloqueados.  
   
 A futuro intentaremos gestionar los redireccionamientos... entre otras funciones.
+
+![urlDefault](multimedia/Url%20into%20default%20settings%20file.jpg "urlDefaultImg")
+![search](multimedia/url%20on%20search.jpg "search1Img")
+![search](multimedia/url%20on%20search%202.jpg "search2Img")
+![addCollections](multimedia/Add%20to%20collections.jpg "addCollectionsImg")
+![collections](multimedia/Collections.jpg "collectionsImg")
+![settingsChange](multimedia/Change%20Settings.jpg "settingsChange")
