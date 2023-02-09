@@ -1,13 +1,18 @@
 package com.example.myapplication;
 
-import android.annotation.SuppressLint;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
@@ -16,21 +21,33 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.PopupWindow;
+import android.widget.SearchView;
+import android.widget.Toast;
 
-public class MainActivity extends AppCompatActivity {
-    String url="https://www.google.com/";
+import org.json.JSONObject;
+import org.json.JSONException;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
+public class MainActivity extends AppCompatActivity implements SearchView.OnQueryTextListener {
+    SearchView searchViewUrl;
     SwipeRefreshLayout mySwipeRefreshLayout;
     WebView myWebView;
     Boolean clicked = false;
-
-    @SuppressLint("JavascriptInterface")
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         myWebView = findViewById(R.id.webView);
+        searchViewUrl = findViewById(R.id.searchViewUrl);
         
         WebSettings webSettings= myWebView.getSettings();
 
@@ -44,22 +61,16 @@ public class MainActivity extends AppCompatActivity {
         webSettings.setSupportMultipleWindows(true);
         webSettings.setAllowFileAccess(true);
 
-        webSettings.setSupportZoom(true);
-        //webSettings.setBuiltInZoomControls(true);
-        //webSettings.setDisplayZoomControls(true);
-
         webSettings.setMixedContentMode(WebSettings.MIXED_CONTENT_COMPATIBILITY_MODE);
         webSettings.setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
 
-
         myWebView.setVerticalScrollBarEnabled(false);
-        //myWebView.addJavascriptInterface(new myJavascriptInterface(), "Interface");
 
         //Creación de los clientes del WebView
         myWebView.setWebViewClient(new MyWebViewClient());
         myWebView.setWebChromeClient(new MyWebChromeClient());
 
-        myWebView.loadUrl(url);
+        readSettingsFile("settings.txt");
 
         /*
         Cuando el usuario intenta subir entanto en el tope de la pagina, es decir, realiza la accion
@@ -67,18 +78,39 @@ public class MainActivity extends AppCompatActivity {
         */
         mySwipeRefreshLayout = findViewById(R.id.swipeContainer);
         mySwipeRefreshLayout.setOnRefreshListener(() -> {
-            /*
-            En esta parte del código especificamos que view mostrar mientras se carga, en este caso
-            se muestra el View de cuando carga por primera vez nuestra app, pero puedes seleccionar otra
-            View que por ejemplo contenga un linerlayout con una imagen o gif de carga o algo por el estilo,
-            o simplemene no mostrar nada mientras se recarga la página.
-            */
             findViewById(R.id.loaderWebView).setVisibility(View.VISIBLE);
             findViewById(R.id.fabBtn1).setVisibility(View.INVISIBLE);
 
             myWebView.reload();
             mySwipeRefreshLayout.setRefreshing(false);
         });
+        searchViewUrl.setOnQueryTextListener(this);
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        myWebView.setWebViewClient(new MyWebViewClient());
+        myWebView.setWebChromeClient(new MyWebChromeClient());
+
+        Intent i = getIntent();
+        if (i.hasExtra("collections_selected_url")){
+            Bundle collectionsExtras = i.getExtras();
+            myWebView.loadUrl(collectionsExtras.getString("collections_selected_url"));
+        }else{
+            readSettingsFile("settings.txt");
+        }
+    }
+
+    @Override
+    public boolean onQueryTextSubmit(String query) {
+        myWebView.loadUrl(query);
+        return false;
+    }
+
+    @Override
+    public boolean onQueryTextChange(String newText) {
+        return false;
     }
 
     //INICIO DE LAS CONFIGURACIONES DEL WebViewClient
@@ -93,28 +125,13 @@ public class MainActivity extends AppCompatActivity {
             super.onPageFinished(view, url);
 
             findViewById(R.id.loaderWebView).setVisibility(View.GONE);
+
             findViewById(R.id.fabBtn1).setVisibility(View.VISIBLE);
-            findViewById(R.id.webView).setVisibility(View.VISIBLE);
+            findViewById(R.id.fabBtn2).setVisibility(View.INVISIBLE);
+            findViewById(R.id.fabBtn3).setVisibility(View.INVISIBLE);
+            findViewById(R.id.fabBtn4).setVisibility(View.INVISIBLE);
 
-            //injectJS(view);
         }
-
-        /*Inyección de codigo javascript para realizar la captura de cuando un usuario hace click por
-        private void injectJS(WebView webview) {
-            try {
-                webview.loadUrl("javascript:(" +
-                        "document.querySelectorAll(\".click\")" +
-                        ".forEach(el => {" +
-                        "   el.addEventListener(\"click\", e => {" +
-                        "       const id = e.target.getAttribute(\"id\");" +
-                        "       console.log(\"Se ha clickeado el id \"+id);" +
-                        "   });" +
-                        "});"
-                );
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }*/
     }
     //FIN DE LAS CONFIGURACIONES DEL WebViewClient
 
@@ -123,7 +140,6 @@ public class MainActivity extends AppCompatActivity {
         //Declaración de Instancias
         private View mCustomView;
         private WebChromeClient.CustomViewCallback mCustomViewCallBack;
-
         private int mOriginalSystemVisibility;
 
         //Constructor
@@ -136,7 +152,7 @@ public class MainActivity extends AppCompatActivity {
             if (mCustomView ==null){
                 return null;
             }
-            return BitmapFactory.decodeResource(getApplicationContext().getResources(),213083757);
+            return BitmapFactory.decodeResource(getApplicationContext().getResources(),2);
         }
 
         //Se hace referencia de la instancia de mCustomView y se cierra la vista.
@@ -160,7 +176,7 @@ public class MainActivity extends AppCompatActivity {
             this.mCustomViewCallBack = paramCustomViewCallBack;
 
             ((FrameLayout)getWindow().getDecorView()).addView(this.mCustomView, new FrameLayout.LayoutParams(-1,-1));
-            getWindow().getDecorView().setSystemUiVisibility(3846 | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
+            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
         }
     }
     //FIN DE LAS CONFIGURACIONES DEL WebChromeClient
@@ -183,14 +199,15 @@ public class MainActivity extends AppCompatActivity {
         setAnimation(clicked);
         clicked =!clicked;
     }
-
     private void setVisibility(Boolean clicked) {
         if (!clicked){
             findViewById(R.id.fabBtn2).setVisibility(View.VISIBLE);
             findViewById(R.id.fabBtn3).setVisibility(View.VISIBLE);
+            findViewById(R.id.fabBtn4).setVisibility(View.VISIBLE);
         }else{
             findViewById(R.id.fabBtn2).setVisibility(View.INVISIBLE);
             findViewById(R.id.fabBtn3).setVisibility(View.INVISIBLE);
+            findViewById(R.id.fabBtn4).setVisibility(View.INVISIBLE);
         }
     }
 
@@ -208,12 +225,79 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    /*
-    public class myJavascriptInterface {
-        @JavascriptInterface
-        public void logHtml() {
-            Log.d("=====>", "Java from Android");
+    public void onSettingsFloatingButtonPressed(View view){
+        Intent i = new Intent(this, settingsActivity.class);
+        startActivity(i);
+    }
+
+    public void onCollectionsFloatingButtonPressed(View view){
+        Intent i = new Intent(this, collectionsActivity.class);
+        startActivity(i);
+    }
+
+    public void onAddUrlFloatingButton(View view){
+        Intent i = new Intent(this, addActivity.class);
+        i.putExtra("url", myWebView.getUrl());
+        startActivity(i);
+    }
+
+    public void readSettingsFile(String file_name) {
+        try {
+            File archive = new File(getFilesDir()+"/"+file_name);
+            StringBuilder contenido = null;
+            JSONObject json;
+            String  url;
+            boolean zoom_controls, search_bar;
+
+            if (archive.exists()){
+                //Lectura del archivo, procesamiento para conversion a texto
+                InputStreamReader inputStreamReader = new InputStreamReader(openFileInput(file_name));
+                BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+                String linea = bufferedReader.readLine();
+                contenido = new StringBuilder();
+                while (linea != null){
+                    contenido.append(linea).append("\n");
+                    linea = bufferedReader.readLine();
+                }
+                bufferedReader.close();
+                inputStreamReader.close();
+                //Conversion del contenido del archivo settings.txt a objeto json
+                json = new JSONObject(contenido.toString());
+
+                //Optencion de cada uno de los campos de objeto json
+                url = json.get("url").toString();
+                zoom_controls = Boolean.parseBoolean(json.get("zoom_controls").toString());
+                search_bar = Boolean.parseBoolean(json.get("search_bar").toString());
+            }else{
+                url = "https://www.google.com/";
+                zoom_controls = false;
+                search_bar = false;
+            }
+
+            myWebView.loadUrl(url);
+
+            settings(zoom_controls, search_bar);
+
+        } catch (JSONException | IOException e) {
+            throw new RuntimeException(e);
         }
     }
-    */
+
+    public void settings(@NonNull Boolean zoom, Boolean searchBar){
+        if (zoom){
+            myWebView.getSettings().setSupportZoom(true);
+            myWebView.getSettings().setBuiltInZoomControls(true);
+            myWebView.getSettings().setDisplayZoomControls(true);
+        }else{
+            myWebView.getSettings().setSupportZoom(false);
+            myWebView.getSettings().setBuiltInZoomControls(false);
+            myWebView.getSettings().setDisplayZoomControls(false);
+        }
+
+        if (searchBar){
+            searchViewUrl.setVisibility(View.VISIBLE);
+        }else{
+            searchViewUrl.setVisibility(View.GONE);
+        }
+    }
 }

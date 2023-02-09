@@ -1,9 +1,21 @@
 <resources>
     <string name="app_name">MediaBrowser</string>
     <string name="splashscreen_title">MediaBrowser</string>
-    
-    <string name="fab_button">Option\'s button</string>
-    <string name="fab_button_settings">Settings button</string>
-    <string name="fab_button_collections">Collections button</string>
-    <string name="fab_button_copy">Copy button</string>
+
+    <string name="fab_button" translatable="true">Option\'s floatingButton</string>
+    <string name="fab_button_settings" translatable="true">Settings floatingButton</string>
+    <string name="fab_button_collections" translatable="true">Collections floatingButton</string>
+    <string name="fab_button_copy" translatable="true">Copy floatingButton</string>
+
+    <string name="url_default" translatable="true">Start Url: </string>
+    <string name="visualizar_zoom" translatable="true">Preview zoom controls   </string>
+    <string name="show_hide_search_bar" translatable="true">Show search bar   </string>
+    <string name="save_button" translatable="true">Save</string>
+    <string name="edit_button">Edit</string>
+    <string name="delete_button">Delete</string>
+
+    <string name="description_edit_button" translatable="true">save</string>
+    <string name="card_name_url">Url name</string>
+    <string name="card_url">URL</string>
+
 </resources>

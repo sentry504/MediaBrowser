@@ -12,6 +12,44 @@
         tools:ignore="MissingConstraints">
 
         <LinearLayout
+            android:id="@+id/bodyWebView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <SearchView
+                android:id="@+id/searchViewUrl"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/white"
+                android:queryHint="search url" />
+
+            <LinearLayout
+                android:id="@+id/PageView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+                    android:id="@+id/swipeContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <WebView
+                        android:id="@+id/webView"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center">
+
+                    </WebView>
+
+                </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
             android:id="@+id/loaderWebView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -39,29 +77,6 @@
 
         </LinearLayout>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_below="@id/loaderWebView"
-            android:orientation="vertical">
-
-            <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-                android:id="@+id/swipeContainer"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-                <WebView
-                    android:id="@+id/webView"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:gravity="center">
-
-                </WebView>
-
-            </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
-
-        </LinearLayout>
-
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
@@ -75,9 +90,10 @@
                 android:clickable="true"
                 android:contentDescription="@string/fab_button_copy"
                 android:focusable="true"
+                android:onClick="onAddUrlFloatingButton"
                 android:tint="@android:color/white"
                 android:visibility="invisible"
-                app:fabSize="mini"
+                app:fabSize="auto"
                 app:layout_constraintBottom_toTopOf="@+id/fabBtn3"
                 app:layout_constraintEnd_toEndOf="@+id/fabBtn3"
                 app:srcCompat="?attr/actionModeCopyDrawable" />
@@ -91,9 +107,10 @@
                 android:clickable="true"
                 android:contentDescription="@string/fab_button_collections"
                 android:focusable="true"
+                android:onClick="onCollectionsFloatingButtonPressed"
                 android:tint="@android:color/white"
                 android:visibility="invisible"
-                app:fabSize="mini"
+                app:fabSize="auto"
                 app:layout_constraintBottom_toTopOf="@+id/fabBtn2"
                 app:layout_constraintEnd_toEndOf="@+id/fabBtn2"
                 app:srcCompat="@android:drawable/ic_menu_agenda" />
@@ -107,9 +124,10 @@
                 android:clickable="true"
                 android:contentDescription="@string/fab_button_settings"
                 android:focusable="true"
+                android:onClick="onSettingsFloatingButtonPressed"
                 android:tint="@android:color/white"
                 android:visibility="invisible"
-                app:fabSize="mini"
+                app:fabSize="auto"
                 app:layout_constraintBottom_toTopOf="@+id/fabBtn1"
                 app:layout_constraintEnd_toEndOf="@+id/fabBtn1"
                 app:srcCompat="@android:drawable/ic_menu_preferences" />

@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".addActivity">
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:layout_margin="5dp"
+        android:layout_marginEnd="5dp"
+        app:cardCornerRadius="10dp">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#292C2E"
+            android:paddingStart="20dp"
+            android:gravity="center"
+            android:paddingTop="20dp">
+
+            <TextView
+                android:id="@+id/card_name_url"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/card_name_url"
+                android:textColor="@color/white"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <EditText
+                android:id="@+id/editTextCardNameurl"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_below="@id/card_name_url"
+                android:layout_marginEnd="10dp"
+                android:ems="10"
+                android:enabled="true"
+                android:hint="@string/card_name_url"
+                android:inputType="textPersonName"
+                android:textColor="#F3EDED"
+                android:textColorHint="#B1AAAA"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/card_url"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/editTextCardNameurl"
+                android:layout_marginTop="30dp"
+                android:text="@string/card_url"
+                android:textColor="@color/white"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <EditText
+                android:id="@+id/editTextCardUrl"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_below="@id/card_url"
+                android:layout_marginTop="-2dp"
+                android:layout_marginEnd="10dp"
+                android:ems="10"
+                android:hint="@string/card_url"
+                android:inputType="textUri"
+                android:textColor="#F3EDED"
+                android:textColorHint="#B1AAAA"
+                android:textStyle="bold" />
+
+            <ImageView
+                android:id="@+id/imageView2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_above="@+id/card_save_button"
+                android:layout_below="@id/editTextCardUrl"
+                android:layout_toStartOf="@+id/card_save_button"
+                android:padding="50dp"
+                app:srcCompat="@drawable/logo" />
+
+            <Button
+                android:id="@+id/card_save_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignEnd="@+id/editTextCardUrl"
+                android:layout_alignParentBottom="true"
+                android:layout_marginBottom="10dp"
+                android:onClick="onCardSaveButtonClicked"
+                android:text="@string/save_button" />
+        </RelativeLayout>
+
+    </androidx.cardview.widget.CardView>
+
+</FrameLayout>
