@@ -1,32 +1,29 @@
 package com.example.myapplication;
 
-import android.content.ClipData;
-import android.content.ClipboardManager;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.View;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.view.animation.AnimationUtils;
+import android.webkit.CookieManager;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.FrameLayout;
-import android.widget.PopupWindow;
+import android.widget.ImageView;
 import android.widget.SearchView;
-import android.widget.Toast;
+import android.widget.TextView;
 
 import org.json.JSONObject;
 import org.json.JSONException;
@@ -41,6 +38,9 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     SwipeRefreshLayout mySwipeRefreshLayout;
     WebView myWebView;
     Boolean clicked = false;
+    ImageView screenImage;
+    TextView textScreen;
+
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
@@ -48,6 +48,8 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
         myWebView = findViewById(R.id.webView);
         searchViewUrl = findViewById(R.id.searchViewUrl);
+        screenImage = findViewById(R.id.ImageViewScreen);
+        textScreen = findViewById(R.id.textViewScreen);
         
         WebSettings webSettings= myWebView.getSettings();
 
@@ -70,7 +72,15 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         myWebView.setWebViewClient(new MyWebViewClient());
         myWebView.setWebChromeClient(new MyWebChromeClient());
 
-        readSettingsFile("settings.txt");
+        ConnectivityManager connectivityManager =(ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+
+        if ((networkInfo != null) && (networkInfo.isConnectedOrConnecting())){
+            readSettingsFile("settings.txt",true);
+        }else{
+            screenImage.setImageResource(R.drawable.connection);
+            textScreen.setText("You are not connected to Internet");
+        }
 
         /*
         Cuando el usuario intenta subir entanto en el tope de la pagina, es decir, realiza la accion
@@ -98,7 +108,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
             Bundle collectionsExtras = i.getExtras();
             myWebView.loadUrl(collectionsExtras.getString("collections_selected_url"));
         }else{
-            readSettingsFile("settings.txt");
+            readSettingsFile("settings.txt",false);
         }
     }
 
@@ -123,6 +133,9 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         @Override
         public void onPageFinished(WebView view, String url){
             super.onPageFinished(view, url);
+            CookieManager.getInstance().setAcceptCookie(true);
+            CookieManager.getInstance().acceptCookie();
+            CookieManager.getInstance().flush();
 
             findViewById(R.id.loaderWebView).setVisibility(View.GONE);
 
@@ -133,6 +146,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
         }
     }
+
     //FIN DE LAS CONFIGURACIONES DEL WebViewClient
 
     //INICIO DE LAS CONFIGURACIONES DEL WebChromeClient
@@ -145,7 +159,6 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         //Constructor
         MyWebChromeClient(){
         }
-
         //Creación de fondo de color default
         @Nullable
         public Bitmap getDefaultVideoPoster(){
@@ -241,12 +254,12 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         startActivity(i);
     }
 
-    public void readSettingsFile(String file_name) {
+    public void readSettingsFile(String file_name, Boolean Recharge_Url) {
         try {
             File archive = new File(getFilesDir()+"/"+file_name);
-            StringBuilder contenido = null;
+            StringBuilder contenido;
             JSONObject json;
-            String  url;
+            String  url = null;
             boolean zoom_controls, search_bar;
 
             if (archive.exists()){
@@ -254,6 +267,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
                 InputStreamReader inputStreamReader = new InputStreamReader(openFileInput(file_name));
                 BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
                 String linea = bufferedReader.readLine();
+
                 contenido = new StringBuilder();
                 while (linea != null){
                     contenido.append(linea).append("\n");
@@ -261,11 +275,14 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
                 }
                 bufferedReader.close();
                 inputStreamReader.close();
+
                 //Conversion del contenido del archivo settings.txt a objeto json
                 json = new JSONObject(contenido.toString());
 
                 //Optencion de cada uno de los campos de objeto json
-                url = json.get("url").toString();
+                if(Recharge_Url){
+                    url = json.get("url").toString();
+                }
                 zoom_controls = Boolean.parseBoolean(json.get("zoom_controls").toString());
                 search_bar = Boolean.parseBoolean(json.get("search_bar").toString());
             }else{
